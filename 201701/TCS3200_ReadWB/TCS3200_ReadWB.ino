@@ -1,18 +1,36 @@
-#include <TimerOne.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 
+
+
+
+#include <TimerOne.h>
+//#include <EEPROM.h>
+#include <EEPROMex.h>
 #define S0     3
 #define S1     4
 #define S2     5
 #define S3     6
 #define OUT    2
 
+#define mem0    1
+#define mem1    11
+#define mem2    21
+#define mem3    31
+
 int   g_count = 0;    // 頻率計算
 int   g_array[3];     // 儲存 RGB 值
 int   g_flag = 0;     // RGB 過濾順序
 float g_SF[3];        // 儲存白平衡計算後之 RGB 補償係數
 
+//eeprom_anything memory ;
+
+EEPROMClassEx memory ;
 
 // TCS3200 初始化與輸出頻率設定
+LiquidCrystal_I2C lcd(0x27, 20, 4); // set the LCD address to 0x27 for a 16 chars and 2 line display
+
+
 void TSC_Init()
 {
   pinMode(S0, OUTPUT);
@@ -84,37 +102,57 @@ void TSC_WB(int Level0, int Level1)      //White Balance
   TSC_FilterColor(Level0, Level1);
   Timer1.setPeriod(1000000);             // us; 每秒觸發 
 }
- 
+void ReadWhiteBalance()
+{
+     
+     if (memory.readInt(mem0)  == 99)
+        {
+            g_SF[0] = memory.readFloat(mem1);
+            g_SF[1] = memory.readFloat(mem2);
+             g_SF[2] = memory.readFloat(mem3);
+          LCDShowWhiteBalance(g_SF[0],g_SF[1],g_SF[2]) ;
+        }
+        else
+        {
+            Serial.println("Read White Balance Parameters Error") ;            
+        }
+        
+  
+}
+
+ void LCDShowWhiteBalance(float a1, float a2,float a3)
+ {
+  lcd.setCursor(0, 1);     
+  lcd.print("WB:") ;
+  lcd.print(a1) ;
+  lcd.print("/") ;
+  lcd.print(a2) ;
+  lcd.print("/") ;
+  lcd.print(a3) ;
+  
+ }
 void setup()
 {
+    lcd.init();                      // initialize the lcd
+
+  // Print a message to the LCD.
+  lcd.backlight();
+  lcd.print("TCS 3200 Color");
+
   TSC_Init();
   Serial.begin(9600);
 
    Timer1.initialize();             // defaulte is 1s
   Timer1.attachInterrupt(TSC_Callback);  
   attachInterrupt(0, TSC_Count, RISING);  
- 
-  delay(4000);
- 
-  for(int i=0; i<3; i++)
-    Serial.println(g_array[i]);
- 
-  g_SF[0] = 255.0/ g_array[0];     // R 補償係數
-  g_SF[1] = 255.0/ g_array[1] ;    // G 補償係數
-  g_SF[2] = 255.0/ g_array[2] ;    // B 補償係數
- 
-  Serial.println(g_SF[0]);
-  Serial.println(g_SF[1]);
-  Serial.println(g_SF[2]);
-
-  for(int i=0; i<3; i++)
-    Serial.println(int(g_array[i] * g_SF[i]));
-  Serial.println("Finish Calibration.");
-  delay(4000);
+  ReadWhiteBalance() ;
  
 }
  
 void loop()
 {
- 
+
+
+
 }
+

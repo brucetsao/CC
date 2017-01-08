@@ -1,5 +1,25 @@
 #include <TimerOne.h>
 
+struct CRGB {
+  union {
+    struct {
+            union {
+                uint8_t r;
+                uint8_t red;
+            };
+            union {
+                uint8_t g;
+                uint8_t green;
+            };
+            union {
+                uint8_t b;
+                uint8_t blue;
+            };
+        };
+    uint8_t raw[3];
+  };
+};
+
 #define S0     3
 #define S1     4
 #define S2     5
@@ -12,6 +32,7 @@ int   g_flag = 0;     // RGB 過濾順序
 float g_SF[3];        // 儲存白平衡計算後之 RGB 補償係數
 
 
+ 
 // TCS3200 初始化與輸出頻率設定
 void TSC_Init()
 {
@@ -89,13 +110,6 @@ void setup()
 {
   TSC_Init();
   Serial.begin(9600);
-
-   Timer1.initialize();             // defaulte is 1s
-  Timer1.attachInterrupt(TSC_Callback);  
-  attachInterrupt(0, TSC_Count, RISING);  
- 
-  delay(4000);
- 
   for(int i=0; i<3; i++)
     Serial.println(g_array[i]);
  
@@ -116,5 +130,9 @@ void setup()
  
 void loop()
 {
- 
+  g_flag = 0;
+  Timer1.stop();
+  Timer1.resume();
+
+  delay(4000);
 }

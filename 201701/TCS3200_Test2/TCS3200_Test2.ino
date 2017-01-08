@@ -1,17 +1,16 @@
 #include <TimerOne.h>
 
-#define S0     3
-#define S1     4
-#define S2     5
-#define S3     6
+#define S0     4
+#define S1     5
+#define S2     6
+#define S3     7
 #define OUT    2
 
 int   g_count = 0;    // 頻率計算
 int   g_array[3];     // 儲存 RGB 值
 int   g_flag = 0;     // RGB 過濾順序
 float g_SF[3];        // 儲存白平衡計算後之 RGB 補償係數
-
-
+ 
 // TCS3200 初始化與輸出頻率設定
 void TSC_Init()
 {
@@ -69,28 +68,28 @@ void TSC_Callback()
          Serial.println(g_count);
          Serial.println("->WB End");
          g_array[2] = g_count;
-         TSC_WB(HIGH, LOW);             //Clear(no filter)   
+         TSC_WB(HIGH, LOW);             // Clear(no filter)   
          break;
    default:
          g_count = 0;
          break;
   }
 }
- 
-void TSC_WB(int Level0, int Level1)      //White Balance
+
+// 白平衡
+void TSC_WB(int Level0, int Level1) 
 {
   g_count = 0;
   g_flag ++;
   TSC_FilterColor(Level0, Level1);
-  Timer1.setPeriod(1000000);             // us; 每秒觸發 
+  Timer1.setPeriod(1000000);      // us; 每秒觸發 
 }
  
 void setup()
 {
   TSC_Init();
   Serial.begin(9600);
-
-   Timer1.initialize();             // defaulte is 1s
+  Timer1.initialize();             // defaulte is 1s
   Timer1.attachInterrupt(TSC_Callback);  
   attachInterrupt(0, TSC_Count, RISING);  
  
@@ -106,15 +105,14 @@ void setup()
   Serial.println(g_SF[0]);
   Serial.println(g_SF[1]);
   Serial.println(g_SF[2]);
-
-  for(int i=0; i<3; i++)
-    Serial.println(int(g_array[i] * g_SF[i]));
-  Serial.println("Finish Calibration.");
-  delay(4000);
  
 }
  
 void loop()
 {
+   g_flag = 0;
+   for(int i=0; i<3; i++)
+    Serial.println(int(g_array[i] * g_SF[i]));
+   delay(4000);
  
 }

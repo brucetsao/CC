@@ -1,4 +1,25 @@
 #include <TimerOne.h>
+#include <Adafruit_NeoPixel.h>
+
+struct CRGB {
+  union {
+    struct {
+            union {
+                uint8_t r;
+                uint8_t red;
+            };
+            union {
+                uint8_t g;
+                uint8_t green;
+            };
+            union {
+                uint8_t b;
+                uint8_t blue;
+            };
+        };
+    uint8_t raw[3];
+  };
+};
 
 #define S0     3
 #define S1     4
@@ -11,7 +32,23 @@ int   g_array[3];     // 儲存 RGB 值
 int   g_flag = 0;     // RGB 過濾順序
 float g_SF[3];        // 儲存白平衡計算後之 RGB 補償係數
 
+// 使用多少顆 WS2812B
+#define NUM_LEDS 11 
 
+// WS2812B DIN 街角街道 UNO 的哪根接腳
+#define DATA_PIN 13
+
+// Parameter 1 = number of pixels in strip
+// Parameter 2 = pin number (most are valid)
+// Parameter 3 = pixel type flags, add together as needed:
+//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
+//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
+//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
+//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
+Adafruit_NeoPixel ws2812 = Adafruit_NeoPixel(NUM_LEDS, DATA_PIN, NEO_GRB + NEO_KHZ800);
+
+CRGB leds[NUM_LEDS];
+ 
 // TCS3200 初始化與輸出頻率設定
 void TSC_Init()
 {
@@ -90,7 +127,10 @@ void setup()
   TSC_Init();
   Serial.begin(9600);
 
-   Timer1.initialize();             // defaulte is 1s
+  ws2812.begin();
+  ws2812.show();  // Initialize all pixels to 'off'  
+
+  Timer1.initialize();             // defaulte is 1s
   Timer1.attachInterrupt(TSC_Callback);  
   attachInterrupt(0, TSC_Count, RISING);  
  
@@ -116,5 +156,24 @@ void setup()
  
 void loop()
 {
- 
+  g_flag = 0;
+  // R
+  for( int i = 0; i < NUM_LEDS; i++ )
+  {
+    leds[i].r = int(g_array[0] * g_SF[0]);
+    leds[i].g = int(g_array[1] * g_SF[1]);
+    leds[i].b = int(g_array[2] * g_SF[2]);
+    ws2812.setPixelColor( i, leds[i].r, leds[i].g, leds[i].b );
+  }
+  Timer1.stop();
+
+  Serial.println(leds[0].r);
+  Serial.println(leds[0].g);
+  Serial.println(leds[0].b);
+
+  ws2812.show();  // Sends the value to the LED
+
+  Timer1.resume();
+
+  delay(4000);
 }

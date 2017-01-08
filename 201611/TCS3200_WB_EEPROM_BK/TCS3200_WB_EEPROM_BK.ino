@@ -1,4 +1,6 @@
 #include <TimerOne.h>
+#include <EEPROM.h>
+#include <EEPROMex.h>
 
 #define S0     3
 #define S1     4
@@ -11,6 +13,7 @@ int   g_array[3];     // 儲存 RGB 值
 int   g_flag = 0;     // RGB 過濾順序
 float g_SF[3];        // 儲存白平衡計算後之 RGB 補償係數
 
+//eeprom_anything memory ;
 
 // TCS3200 初始化與輸出頻率設定
 void TSC_Init()
@@ -111,10 +114,31 @@ void setup()
     Serial.println(int(g_array[i] * g_SF[i]));
   Serial.println("Finish Calibration.");
   delay(4000);
+
+ EEPROM.writeFloat(1,g_SF[0]) ;
+ EEPROM.writeFloat(11,g_SF[1]) ;
+ EEPROM.writeFloat(21,g_SF[2]) ;
  
 }
  
 void loop()
 {
- 
+  
+float a1,a2,a3 ;
+  a1 = EEPROM.readFloat(1);
+  a2 = EEPROM.readFloat(11);
+  a3 = EEPROM.readFloat(21);
+
+    Serial.print("memory(1):");
+    Serial.println(a1);
+    Serial.println("\n");
+    Serial.print("memory(2):");
+    Serial.println(a2);
+    Serial.println("\n");
+    Serial.print("memory(3):");
+    Serial.println(a3);
+    Serial.println("\n");
+  delay(300000) ;
+
+
 }

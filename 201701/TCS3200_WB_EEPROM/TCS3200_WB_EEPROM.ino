@@ -1,16 +1,25 @@
 #include <TimerOne.h>
-
+//#include <EEPROM.h>
+#include <EEPROMex.h>
 #define S0     3
 #define S1     4
 #define S2     5
 #define S3     6
 #define OUT    2
 
+#define mem0    1
+#define mem1    11
+#define mem2    21
+#define mem3    31
+
 int   g_count = 0;    // 頻率計算
 int   g_array[3];     // 儲存 RGB 值
 int   g_flag = 0;     // RGB 過濾順序
 float g_SF[3];        // 儲存白平衡計算後之 RGB 補償係數
 
+//eeprom_anything memory ;
+
+EEPROMClassEx memory ;
 
 // TCS3200 初始化與輸出頻率設定
 void TSC_Init()
@@ -111,10 +120,33 @@ void setup()
     Serial.println(int(g_array[i] * g_SF[i]));
   Serial.println("Finish Calibration.");
   delay(4000);
+
+ memory.writeFloat(mem1,g_SF[0]) ;
+ memory.writeFloat(mem2,g_SF[1]) ;
+ memory.writeFloat(mem3,g_SF[2]) ;
  
 }
  
 void loop()
 {
- 
+  
+float a1,a2,a3 ;
+  a1 = memory.readFloat(mem1);
+  a2 = memory.readFloat(mem2);
+  a3 = memory.readFloat(mem3);
+
+    Serial.print("memory(1):");
+    Serial.println(a1);
+    Serial.println("\n");
+    Serial.print("memory(2):");
+    Serial.println(a2);
+    Serial.println("\n");
+    Serial.print("memory(3):");
+    Serial.println(a3);
+    Serial.println("\n");
+     memory.writeInt(mem0,99) ;
+    Serial.println("While Balance Compliant factors saving are ok ");
+    delay(300000) ;
+
+
 }
