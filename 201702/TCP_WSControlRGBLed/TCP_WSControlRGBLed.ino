@@ -25,7 +25,7 @@ void setup() {
   wifi.setWifiMode(1);//將WiFi模組設定為Station模式
   wifi.connToWifi(SSID,PASSWORD);//連接網路
   Serial.println(wifi.getIP());//取得IP
-  wifi.disableMUX();//開啟多人連線模式
+  wifi.enableMUX();//開啟多人連線模式
   wifi.createTCPServer(8080);//開啟TCP Server
    Serial.println(wifi.getIP());//取得IP
   pixels.begin(); // This initializes the NeoPixel library.
