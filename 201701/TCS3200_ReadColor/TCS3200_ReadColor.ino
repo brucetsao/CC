@@ -100,7 +100,7 @@ void TSC_WB(int Level0, int Level1)      //White Balance
   g_count = 0;
   g_flag ++;
   TSC_FilterColor(Level0, Level1);
-  Timer1.setPeriod(1000000);             // us; 每秒觸發 
+   Timer1.setPeriod(1000000);             // us; 每秒觸發 
 }
 void ReadWhiteBalance()
 {
@@ -131,6 +131,22 @@ void ReadWhiteBalance()
   lcd.print(a3) ;
   
  }
+
+
+
+ void LCDShowColor()
+ {
+  lcd.setCursor(0, 2);     
+  lcd.print("Color:") ;
+  lcd.print((int)(g_array[0] * g_SF[0])) ;
+  lcd.print("/") ;
+  lcd.print((int)(g_array[1] * g_SF[1])) ;
+  lcd.print("/") ;
+  lcd.print((int)(g_array[2] * g_SF[2])) ;
+  
+ }
+
+
 void setup()
 {
   Serial.begin(9600);
@@ -146,13 +162,28 @@ void setup()
   Timer1.attachInterrupt(TSC_Callback);  
   attachInterrupt(0, TSC_Count, RISING);  
   
- 
+   delay(4000);
+ // LCDShowColor();  //  show color on LCD2004
+ //  delay(4000);
 }
  
 void loop()
 {
+   g_flag = 0;
+ // ReadColor() ;
+  Timer1.stop();
+  Serial.print("R=");
+  Serial.print((g_array[0] * g_SF[0]));
+  Serial.print(",G=");
+  Serial.print((g_array[1] * g_SF[1]));
+  Serial.print(",B=");
+  Serial.print((g_array[2] * g_SF[2]));
+  Serial.print("\n");
 
+  LCDShowColor();  //  show color on LCD2004
+  Serial.println("Show Color on loop()");
+   Timer1.resume();
 
-
+    delay(4000);
 }
 
