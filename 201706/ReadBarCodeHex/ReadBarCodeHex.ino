@@ -14,7 +14,7 @@ void setup() {
   // put your setup code here, to run once:
    Serial.begin(9600) ;
      mySerial.begin(9600) ;
-    Serial.println("Read Bar Code Program Start  ") ;
+    Serial.println("Read Bar HEX Code Program Start  ") ;
    
 }
 
@@ -25,7 +25,7 @@ void loop() {
           {
             // Serial.println("Some Incoming") ;
               c= mySerial.read() ;
-              Serial.write(c) ;       
+              Serial.println(c,HEX) ;       
           }
       if (Serial.available() > 0)
           {
