@@ -1,13 +1,7 @@
 #include <WiFi.h>
 #include <Wire.h>
 #include <Adafruit_ADS1015.h>
-#include "DHT.h"
 #include "wiring_watchdog.h"
-
-#define DHTPIN 8     // what digital pin we're connected to
-#define DHTTYPE DHT11   // DHT 11
-#define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
-#define DHTTYPE DHT21   // DHT 21 (AM2301)
 
 Adafruit_ADS1115 ads;
 //
@@ -15,79 +9,71 @@ double sqI[8],sumI[8];
 double sampleI[8];
 double Irms[8];
 uint8_t MacData[6];
-
+int voltage[8]={110,110,110,110,
+                110,110,110,110};
 IPAddress  Meip ,Megateway ,Mesubnet ;
-String MacAddress ;
+String MacAddress="" ;
 char ssid[] = "NCNU";      // your network SSID (name)
 char pass[] = "";     // your network password
 int keyIndex = 0;                 // your network key Index number (needed only for WEP)
 int status = WL_IDLE_STATUS;
-char server[] = "10.24.21.159";    // name address for Google (using DNS)
-//-------------- dht use
+char server[] = "163.22.24.51";    // name address for Google (using DNS)
 
 
 
 
 String connectstr ;
 String table_temp;
-String table1="test1_1";
-String table2="test1_2";
-String table3="test1_3";
-String table4="test1_4";
-String table5="test1_5";
-String table6="test1_6";
-String table7="test1_7";
-String table8="test1_8";
-
+String table1="Sf0038ce7a8e41";  // 資料表名稱(MAC組成)
+String table2="Sf0038ce7a8e42";
+String table3="Sf0038ce7a8e43";
+String table4="Sf0038ce7a8e44";
+String table5="Sf0038ce7a8e45";
+String table6="Sf0038ce7a8e46";
+String table7="Sf0038ce7a8e47";
+String table8="Sf0038ce7a8e48";
 
 WiFiClient client;
 
-
-double squareRoot(double fg)
+double squareRoot(double fg)  //開根號
 {
     double n = fg / 2.0;
     double lstX = 0.0;
-    while (n != lstX)
+    while (n != lstX) 
     {
         lstX = n;
         n = (n + fg / n) / 2.0;
     }
     return n;
-}
- 
+} 
 void calcIrms(unsigned int Number_of_Samples, float multiplier,double ical)  
 {
   int i;
-  for(i=0;i<=1;i++)
+  for (unsigned int n = 0; n < Number_of_Samples; n++)    
   {
-    for (unsigned int n = 0; n < Number_of_Samples; n++)
-    {
+  for(i=0;i<=1;i++)  
+  { 
         ads.convert_v1(0x48,i+1);
         ads.convert_v1(0x49,i+1);
         ads.convert_v1(0x4A,i+1);
         ads.convert_v1(0x4B,i+1);
-        delay(8);
         sampleI[0+i]=ads.read_v1(0x48);
         sampleI[2+i]=ads.read_v1(0x49);
         sampleI[4+i]=ads.read_v1(0x4A);
-        sampleI[6+i]=ads.read_v1(0x4B);
-        
+        sampleI[6+i]=ads.read_v1(0x4B)     
         sqI[i] = sampleI[i] * sampleI[i];  sumI[i] += sqI[i];
         sqI[2+i] = sampleI[2+i] * sampleI[2+i];  sumI[2+i] += sqI[2+i];
         sqI[4+i] = sampleI[4+i] * sampleI[4+i];  sumI[4+i] += sqI[4+i];
-        sqI[6+i] = sampleI[6+i] * sampleI[6+i];  sumI[6+i] += sqI[6+i];
-        
-      
+        sqI[6+i] = sampleI[6+i] * sampleI[6+i];  sumI[6+i] += sqI[6+i]; 
+       wdt_reset()      
     }
   }
-  for(i=0;i<=7;i++)
-  {
+  for(i=0;i<=7;i++)  {
     Irms[i] = squareRoot(sumI[i] / Number_of_Samples) * multiplier * ical/100;
     sumI[i] = 0;
   }
 //--------------------------------------------------------------------------------------
 }
-
 
 
 void ShowMac()
@@ -98,7 +84,6 @@ void ShowMac()
      Serial.print("\n");
 
 }
-
 void setup()   /*----( SETUP: RUNS ONCE )----*/
 { 
    wdt_enable(8000);
@@ -109,16 +94,14 @@ void setup()   /*----( SETUP: RUNS ONCE )----*/
    digitalWrite(5,LOW);
    digitalWrite(6,LOW);
    digitalWrite(7,HIGH);
-   
    Wire.begin();
     /* ADS1115 @ +/- 4.096V gain (16-bit results) 0.125mV Step*/
     ads.setGain(GAIN_ONE);
     ads.begin();
     Serial.println();
     Serial.println("current meter");
-    //MacAddress = GetWifiMac() ; // get MacAddress
-    ShowMac() ;       //Show Mac Address
-  
+    MacAddress = GetWifiMac() ; // get MacAddress
+    ShowMac() ;       //Show Mac Address 
     Serial.begin(9600);
   // check for the presence of the shield:
   if (WiFi.status() == WL_NO_SHIELD) {
@@ -126,7 +109,7 @@ void setup()   /*----( SETUP: RUNS ONCE )----*/
     // don't continue:
     while (true);
   }
-  String fv = WiFi.firmwareVersion();
+String fv = WiFi.firmwareVersion();
   if (fv != "1.1.0") {
     Serial.println("Please upgrade the firmware");
   }
@@ -145,7 +128,6 @@ void setup()   /*----( SETUP: RUNS ONCE )----*/
   printWifiStatus();
 
 }// END Setup
-
 static int count=0;
 void loop()   
 {
@@ -153,8 +135,8 @@ void loop()
  
  if(WiFi.status() != WL_CONNECTED)
  {
-  digitalWrite(6,LOW);
-  while (status != WL_CONNECTED) {
+    digitalWrite(6,LOW);
+    while (status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(ssid);
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
@@ -172,7 +154,7 @@ void loop()
  
  connectstr = "" ;
 
- calcIrms(64, 0.125F,9.6);  //
+ calcIrms(3840, 0.125F,9.6);  //
  
  for(int i=0; i<=7 ;i++)
  {
@@ -200,14 +182,14 @@ void loop()
     case 6:
     table_temp=table7;
     break;
-    case 7:
+  case 7:
     table_temp=table8;
     break;
   }
 
   wdt_disable();
    
-   connectstr = "?field0="+table_temp+"&field1=" + String(Irms[i]*110)+"&field2="+String(Irms[i]);
+   connectstr = "?tablename="+table_temp+"&voltage=" + String(voltage[i])+"&current="+String(Irms[i])+"&power="+String(Irms[i]*voltage[i])+"&mac="+MacAddress;
   if (client.connect(server,80)) { // REPLACE WITH YOUR SERVER ADDRESS
     client.print("POST /iot/dht22/dataadd.php");
     client.print(connectstr);
@@ -232,14 +214,12 @@ void loop()
   if (client.connected()) { 
     client.stop();  // DISCONNECT FROM THE SERVER
     digitalWrite(5,HIGH);
-    
+    delay(30);
   }
   wdt_enable(8000);
-  delay(1000); // WAIT FIVE MINUTES BEFORE SENDING AGAIN
   digitalWrite(5,LOW);
  }
 
-  
   } 
 
 
@@ -261,4 +241,52 @@ void printWifiStatus() {
   Serial.print(rssi);
   Serial.println(" dBm");
 }
+
+String GetWifiMac()
+{
+   String tt ;
+   String t1,t2,t3,t4,t5,t6 ;
+   WiFi.status();    //this method must be used for get MAC
+   WiFi.macAddress(MacData);
+  
+   Serial.print("Mac:");
+   Serial.print(MacData[0],HEX) ;
+   Serial.print("/");
+   Serial.print(MacData[1],HEX) ;
+   Serial.print("/");
+   Serial.print(MacData[2],HEX) ;
+   Serial.print("/");
+   Serial.print(MacData[3],HEX) ;
+   Serial.print("/");
+   Serial.print(MacData[4],HEX) ;
+   Serial.print("/");
+   Serial.print(MacData[5],HEX) ;
+   Serial.print("~");
+   
+   t1 = print2HEX((int)MacData[0]);
+   t2 = print2HEX((int)MacData[1]);
+   t3 = print2HEX((int)MacData[2]);
+   t4 = print2HEX((int)MacData[3]);
+   t5 = print2HEX((int)MacData[4]);
+   t6 = print2HEX((int)MacData[5]);
+  tt = (t1+t2+t3+t4+t5+t6) ;
+Serial.print(tt);
+Serial.print("\n");
+  
+  return tt ;
+}
+
+String  print2HEX(int number) {
+  String ttt ;
+  if (number >= 0 && number < 16)
+  {
+    ttt = String("0") + String(number,HEX);
+  }
+  else
+  {
+      ttt = String(number,HEX);
+  }
+  return ttt ;
+}
+
 
