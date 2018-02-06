@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<info>
+	<infoitem key="UD_Recordset1" value="name:id;datatype:int,name:datetime;datatype:timestamp,name:yyyymmdd;datatype:date,name:humidity;datatype:real,name:celsius;datatype:real,name:fahrenheit;datatype:real" />
+</info>

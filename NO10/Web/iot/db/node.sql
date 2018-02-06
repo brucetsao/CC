@@ -1,0 +1,2 @@
+CREATE TABLE `Power`.`Node` ( `s_id` INT NOT NULL AUTO_INCREMENT COMMENT '主鍵' , `site_id` INT NOT NULL COMMENT '客戶主鍵' , `s_mac` CHAR(12) NOT NULL COMMENT 'DEVICE_MAC' , `s_name` CHAR(200) NOT NULL , `s_type` TEXT NOT NULL , `s_start` TIMESTAMP NOT NULL COMMENT '開始時間' , `s_end` TIMESTAMP NULL COMMENT '結束時間' , `s_used` INT NOT NULL COMMENT '是否還在使用' , `s_update` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新資料時間' , PRIMARY KEY (`s_id`), INDEX `site` (`site_id`), INDEX `MAC` (`s_mac`)) ENGINE = MyISAM;
+關閉

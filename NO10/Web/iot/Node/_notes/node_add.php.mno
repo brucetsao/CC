@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<info>
+	<infoitem key="UD_site_qry" value="name:s_id;datatype:int,name:s_name;datatype:string,name:s_lat;datatype:real,name:s_lon;datatype:real,name:s_addr1;datatype:string,name:s_addr2;datatype:string,name:s_tel1;datatype:string,name:s_tel2;datatype:string,name:s_fax;datatype:string,name:s_contact;datatype:string,name:s_mobile;datatype:string,name:s_update;datatype:timestamp" />
+	<infoitem key="UD_devicetype" value="name:s_id;datatype:int,name:s_name;datatype:string,name:s_update;datatype:timestamp" />
+</info>
