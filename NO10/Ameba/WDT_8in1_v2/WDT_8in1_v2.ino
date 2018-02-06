@@ -17,7 +17,7 @@ char ssid[] = "NCNU";      // your network SSID (name)
 char pass[] = "";     // your network password
 int keyIndex = 0;                 // your network key Index number (needed only for WEP)
 int status = WL_IDLE_STATUS;
-char server[] = "163.22.24.51";    // name address for Google (using DNS)
+char server[] = "10.1.1.1";    // name address for Google (using DNS)
 
 
 
